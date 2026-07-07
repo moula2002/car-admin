@@ -26,9 +26,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear token and redirect to login if unauthorized
+      console.error("401 Unauthorized Error! Backend says:", error.response.data);
+      // Remove token but do not immediately redirect so we can see the error
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // window.location.href = '/login';
     }
     return Promise.reject(error);
   }

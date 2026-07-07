@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Users, Car, Navigation, DollarSign, TrendingUp, CalendarCheck } from 'lucide-react';
+import { Users, Car, Navigation, IndianRupee, TrendingUp, CalendarCheck } from 'lucide-react';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 
@@ -71,7 +71,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} icon={DollarSign} trend="12.5%" trendUp={true} />
+        <StatCard title="Total Revenue" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={IndianRupee} trend="12.5%" trendUp={true} />
         <StatCard title="Total Bookings" value={stats.totalBookings.toLocaleString()} icon={CalendarCheck} trend="8.2%" trendUp={true} />
         <StatCard title="Active Drivers" value={stats.activeDrivers.toLocaleString()} icon={Navigation} trend="2.4%" trendUp={true} />
         <StatCard title="Total Customers" value={stats.totalCustomers.toLocaleString()} icon={Users} trend="14.1%" trendUp={true} />

@@ -7,28 +7,36 @@ const Bookings = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [bookings, setBookings] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ 
     customer: '', 
+    driver: '',
+    car: '',
     pickupLocation: '', 
     dropLocation: '', 
     journeyDate: '', 
-    timeSlot: 'Morning', 
+    timeSlot: '', 
     fare: 0 
   });
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [bookingsRes, customersRes] = await Promise.all([
+      const [bookingsRes, customersRes, driversRes, carsRes] = await Promise.all([
         api.get('/bookings'),
-        api.get('/customers')
+        api.get('/customers'),
+        api.get('/drivers'),
+        api.get('/cars')
       ]);
       setBookings(bookingsRes.data.data);
       setCustomers(customersRes.data.data);
+      setDrivers(driversRes.data.data);
+      setCars(carsRes.data.data);
     } catch (err) {
       toast.error('Failed to fetch data');
     } finally {
@@ -54,10 +62,26 @@ const Bookings = () => {
   const handleAddSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await api.post('/bookings', formData);
-      setBookings([data.data, ...bookings]);
+      const payload = { ...formData };
+      if (!payload.driver) {
+        delete payload.driver;
+      }
+      if (!payload.car) {
+        delete payload.car;
+      }
+      const { data } = await api.post('/bookings', payload);
+      
+      // Hydrate the new booking with the full objects so they render correctly immediately
+      const newBooking = {
+        ...data.data,
+        customer: customers.find(c => c._id === data.data.customer) || null,
+        driver: drivers.find(d => d._id === data.data.driver) || null,
+        car: cars.find(c => c._id === data.data.car) || null
+      };
+
+      setBookings([newBooking, ...bookings]);
       setIsModalOpen(false);
-      setFormData({ customer: '', pickupLocation: '', dropLocation: '', journeyDate: '', timeSlot: 'Morning', fare: 0 });
+      setFormData({ customer: '', driver: '', car: '', pickupLocation: '', dropLocation: '', journeyDate: '', timeSlot: '', fare: 0 });
       toast.success('Booking created successfully');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to create booking');
@@ -86,42 +110,63 @@ const Bookings = () => {
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
             </div>
             <form onSubmit={handleAddSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Select Customer</label>
-                <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                  <option value="">Select a customer...</option>
-                  {customers.map(c => (
-                    <option key={c._id} value={c._id}>{c.name} ({c.email})</option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Select Customer</label>
+                  <select required value={formData.customer} onChange={e => setFormData({...formData, customer: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="">Select a customer...</option>
+                    {customers.map(c => (
+                      <option key={c._id} value={c._id}>{c.name} ({c.email})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Assign Driver (Optional)</label>
+                  <select value={formData.driver} onChange={e => setFormData({...formData, driver: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="">No Driver Assigned</option>
+                    {drivers.map(d => (
+                      <option key={d._id} value={d._id}>{d.name} - {d.status === 'Active' ? 'Active' : d.status}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Assign Car (Optional)</label>
+                  <select value={formData.car} onChange={e => setFormData({...formData, car: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="">No Car Assigned</option>
+                    {cars.map(c => (
+                      <option key={c._id} value={c._id}>{c.make} {c.model} ({c.registrationNumber})</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Location</label>
                   <input required type="text" value={formData.pickupLocation} onChange={e => setFormData({...formData, pickupLocation: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Airport" />
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Drop Location</label>
                   <input required type="text" value={formData.dropLocation} onChange={e => setFormData({...formData, dropLocation: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Downtown" />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Journey Date</label>
                   <input required type="date" value={formData.journeyDate} onChange={e => setFormData({...formData, journeyDate: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Time Slot</label>
-                  <select required value={formData.timeSlot} onChange={e => setFormData({...formData, timeSlot: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
-                    <option value="Morning">Morning</option>
-                    <option value="Afternoon">Afternoon</option>
-                    <option value="Evening">Evening</option>
-                    <option value="Night">Night</option>
-                  </select>
-                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Total Fare ($)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                <input 
+                  required 
+                  type="time" 
+                  value={formData.timeSlot} 
+                  onChange={e => setFormData({...formData, timeSlot: e.target.value})} 
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Total Fare (₹)</label>
                 <input required type="number" value={formData.fare} onChange={e => setFormData({...formData, fare: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="45.00" />
               </div>
               <div className="pt-4 flex justify-end gap-3">
@@ -219,7 +264,7 @@ const Bookings = () => {
                   </div>
                   
                   <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-lg font-bold text-gray-900">${booking.fare}</span>
+                    <span className="text-lg font-bold text-gray-900">₹{booking.fare}</span>
                     <div className="flex items-center gap-1.5 text-xs font-medium">
                       <CreditCard size={14} className={booking.paymentStatus === 'Completed' ? 'text-emerald-500' : 'text-amber-500'} />
                       <span className={booking.paymentStatus === 'Completed' ? 'text-emerald-700' : 'text-amber-700'}>{booking.paymentStatus}</span>

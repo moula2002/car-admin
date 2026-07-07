@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { Car, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
@@ -16,7 +16,7 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post('https://car-taxi-server.vercel.app/api/v1/auth/login', { email, password });
+      const res = await api.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
       navigate('/dashboard');
     } catch (err) {
