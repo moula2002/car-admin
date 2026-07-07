@@ -170,11 +170,14 @@ const Bookings = () => {
               <div className="flex flex-col lg:flex-row justify-between gap-6">
                 
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <h3 className="text-lg font-bold text-gray-900">#{booking._id.substring(0, 8)}</h3>
-                    <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
-                      {booking.status}
-                    </span>
+                  <div className="flex flex-col gap-1 mb-3">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-bold text-gray-900">#{booking._id.substring(0, 8)}</h3>
+                      <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
+                        {booking.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400">Created: {new Date(booking.createdAt).toLocaleString()}</p>
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-6 mb-4">
@@ -204,11 +207,15 @@ const Bookings = () => {
                 <div className="lg:w-64 border-t lg:border-t-0 lg:border-l border-gray-100 pt-4 lg:pt-0 lg:pl-6 flex flex-col justify-between">
                   <div>
                     <p className="text-xs text-gray-500 mb-1">Customer</p>
-                    <p className="text-sm font-medium text-gray-900 mb-3">{booking.customer ? booking.customer.name : 'Unknown'}</p>
+                    <p className="text-sm font-medium text-gray-900">{booking.customer ? booking.customer.name : 'Unknown'}</p>
+                    {booking.customer && (
+                      <p className="text-xs text-gray-500 mb-3">{booking.customer.phone} • {booking.customer.email}</p>
+                    )}
                     
-                    <p className="text-xs text-gray-500 mb-1">Driver & Car</p>
+                    <p className="text-xs text-gray-500 mb-1 mt-2">Driver & Car</p>
                     <p className="text-sm font-medium text-gray-900">{booking.driver ? booking.driver.name : 'Unassigned'}</p>
-                    <p className="text-xs text-gray-500">{booking.car ? booking.car.make : 'No car'}</p>
+                    {booking.driver && <p className="text-xs text-gray-500">{booking.driver.phone}</p>}
+                    <p className="text-xs text-gray-500 mt-1">{booking.car ? `${booking.car.make} ${booking.car.model} (${booking.car.registrationNumber})` : 'No car'}</p>
                   </div>
                   
                   <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">

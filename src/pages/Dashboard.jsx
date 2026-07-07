@@ -41,20 +41,29 @@ const Dashboard = () => {
     totalRevenue: 0
   });
 
+  const [recentBookings, setRecentBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await api.get('/dashboard/stats');
-        setStats(data.data);
+        const [statsRes, bookingsRes] = await Promise.all([
+          api.get('/dashboard/stats'),
+          api.get('/bookings')
+        ]);
+        setStats(statsRes.data.data);
+        
+        // Get the 5 most recent bookings
+        const allBookings = bookingsRes.data.data;
+        const sortedBookings = allBookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setRecentBookings(sortedBookings.slice(0, 5));
       } catch (err) {
-        toast.error('Failed to load dashboard stats');
+        toast.error('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    fetchData();
   }, []);
 
   if (loading) return <div className="text-center py-20 text-gray-500 font-medium animate-pulse">Loading Dashboard Insights...</div>;
@@ -89,17 +98,35 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <h3 className="text-lg font-bold text-gray-800 mb-6">Recent Activity</h3>
           <div className="space-y-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                  <Car size={18} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">New booking #CB-{4920 + i}</p>
-                  <p className="text-xs text-gray-500 mt-1">John Doe • 2 mins ago</p>
-                </div>
-              </div>
-            ))}
+            {recentBookings.length === 0 ? (
+              <p className="text-sm text-gray-500">No recent activity found.</p>
+            ) : (
+              recentBookings.map((booking) => {
+                const timeAgo = (dateStr) => {
+                  const diff = Math.floor((new Date() - new Date(dateStr)) / 60000); // minutes
+                  if (diff < 60) return `${diff} mins ago`;
+                  const hours = Math.floor(diff / 60);
+                  if (hours < 24) return `${hours} hours ago`;
+                  return `${Math.floor(hours / 24)} days ago`;
+                };
+
+                return (
+                  <div key={booking._id} className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Car size={18} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        New booking #{booking._id.substring(0, 8)}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {booking.customer ? booking.customer.name : 'Unknown'} • {timeAgo(booking.createdAt)} • {booking.pickupLocation}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>

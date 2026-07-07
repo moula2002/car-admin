@@ -156,10 +156,16 @@ const Cars = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-1">{car.make} {car.model}</h3>
               <p className="text-sm font-medium text-gray-500 mb-4">{car.type} • {car.registrationNumber}</p>
               
-              <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin size={16} className="text-gray-400" />
-                  <span>Driver: <strong>{car.currentDriver ? car.currentDriver.name : 'Unassigned'}</strong></span>
+              <div className="pt-4 border-t border-gray-100 flex flex-col gap-2">
+                <div className="flex items-start gap-2 text-sm text-gray-600">
+                  <MapPin size={16} className="text-gray-400 mt-0.5" />
+                  <div className="flex flex-col">
+                    <span>Driver: <strong>{car.currentDriver ? car.currentDriver.name : 'Unassigned'}</strong></span>
+                    {car.currentDriver && <span className="text-xs text-gray-500">{car.currentDriver.phone}</span>}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-400 mt-2">
+                  Added: {new Date(car.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </div>

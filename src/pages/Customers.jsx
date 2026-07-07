@@ -123,15 +123,16 @@ const Customers = () => {
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Member Since</th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                 <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <tr><td colSpan="5" className="text-center py-10 text-gray-500 font-medium">Loading customers...</td></tr>
+                <tr><td colSpan="6" className="text-center py-10 text-gray-500 font-medium">Loading customers...</td></tr>
               ) : filteredCustomers.length === 0 ? (
-                <tr><td colSpan="5" className="text-center py-10 text-gray-500 font-medium">No customers found</td></tr>
+                <tr><td colSpan="6" className="text-center py-10 text-gray-500 font-medium">No customers found</td></tr>
               ) : (
                 filteredCustomers.map((customer) => (
                   <tr key={customer._id} className="hover:bg-gray-50 transition-colors">
@@ -151,6 +152,9 @@ const Customers = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {customer.location || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(customer.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-emerald-100 text-emerald-800">
