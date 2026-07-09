@@ -66,8 +66,8 @@ const Drivers = () => {
 
   const filteredDrivers = drivers.filter(d =>
     d.status !== 'pending' &&
-    (d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (d.licenseNumber && d.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase())))
+    ((d.name && d.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (d.licenseNumber && d.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   return (
@@ -170,15 +170,15 @@ const Drivers = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         {driver.photo ? (
-                           <img src={driver.photo} alt="" className="h-10 w-10 rounded-full object-cover" />
+                          <img src={driver.photo} alt="" className="h-10 w-10 rounded-full object-cover" />
                         ) : (
                           <div className="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold uppercase">
-                            {driver.name.charAt(0)}
+                            {driver.name ? driver.name.charAt(0) : 'D'}
                           </div>
                         )}
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{driver.name}</div>
-                          <div className="text-sm text-gray-500">{driver.phone}</div>
+                          <div className="text-sm font-medium text-gray-900">{driver.name || 'Unknown'}</div>
+                          <div className="text-sm text-gray-500">{driver.phone || 'N/A'}</div>
                         </div>
                       </div>
                     </td>

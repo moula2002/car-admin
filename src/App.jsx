@@ -9,6 +9,7 @@ import DriverDetails from './pages/DriverDetails';
 import Bookings from './pages/Bookings';
 import Payments from './pages/Payments';
 import Settings from './pages/Settings';
+import Vehicles from './pages/Vehicles';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -26,7 +27,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
-        
+
         <Route path="/" element={
           <ProtectedRoute>
             <Layout />
@@ -38,6 +39,7 @@ function App() {
           <Route path="verification" element={<DriverVerification />} />
           <Route path="drivers" element={<Drivers />} />
           <Route path="drivers/:id" element={<DriverDetails />} />
+          <Route path="vehicles" element={<Vehicles />} />
           <Route path="bookings" element={<Bookings />} />
           <Route path="payments" element={<Payments />} />
           <Route path="settings" element={<Settings />} />

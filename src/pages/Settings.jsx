@@ -67,7 +67,7 @@ export default function Settings() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      
+
       {/* Title */}
       <div className="flex items-center gap-3">
         <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600">
@@ -81,9 +81,9 @@ export default function Settings() {
 
       <div className="bg-white border border-gray-200 rounded-2xl p-6 md:p-8 shadow-sm">
         <form onSubmit={handleSave} className="space-y-6">
-          
+
           <div className="grid grid-cols-1 gap-6">
-            
+
             {/* UPI ID */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Admin UPI ID</label>

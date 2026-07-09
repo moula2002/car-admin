@@ -74,30 +74,32 @@ const DriverDetails = () => {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* Header Toolbar */}
-      <div className="flex items-center gap-4 border-b border-gray-200 pb-4">
-        <button onClick={() => navigate('/drivers')} className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors">
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="text-2xl font-bold text-gray-900">Driver Profile & Verification</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/drivers')} className="p-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 text-gray-600 transition-colors shrink-0">
+            <ArrowLeft size={20} />
+          </button>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Driver Profile & Verification</h2>
+        </div>
         
-        <div className="ml-auto flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           {driver.status === 'pending' && (
             <>
-              <button onClick={() => handleStatusChange('approved')} className="px-4 py-2 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
+              <button onClick={() => handleStatusChange('approved')} className="flex-1 sm:flex-initial justify-center px-4 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-xl hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-2">
                 <CheckCircle size={16} /> Approve
               </button>
-              <button onClick={() => handleStatusChange('rejected')} className="px-4 py-2 bg-red-600 text-white font-bold text-sm rounded-xl hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
+              <button onClick={() => handleStatusChange('rejected')} className="flex-1 sm:flex-initial justify-center px-4 py-2.5 bg-red-600 text-white font-bold text-sm rounded-xl hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
                 <XCircle size={16} /> Reject
               </button>
             </>
           )}
           {driver.status === 'approved' && (
-            <span className="px-4 py-2 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-sm font-bold shadow-sm">
+            <span className="w-full sm:w-auto text-center px-4 py-2 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-sm font-bold shadow-sm">
               Approved Partner
             </span>
           )}
           {driver.status === 'rejected' && (
-            <span className="px-4 py-2 bg-red-100 text-red-800 border border-red-200 rounded-xl text-sm font-bold shadow-sm">
+            <span className="w-full sm:w-auto text-center px-4 py-2 bg-red-100 text-red-800 border border-red-200 rounded-xl text-sm font-bold shadow-sm">
               Rejected Application
             </span>
           )}

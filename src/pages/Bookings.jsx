@@ -7,12 +7,13 @@ const Bookings = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [bookings, setBookings] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [vehicleTypes, setVehicleTypes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customerMode, setCustomerMode] = useState('select'); // 'select' or 'create'
-  
+
   const [formData, setFormData] = useState({
     customer: '', // customer ID for selection
     customerName: '',
@@ -22,18 +23,21 @@ const Bookings = () => {
     dropLocation: '',
     pickupDateTime: '',
     dropDateTime: '',
-    fare: 0
+    fare: '',
+    carType: ''
   });
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [bookingsRes, customersRes] = await Promise.all([
+      const [bookingsRes, customersRes, vehiclesRes] = await Promise.all([
         api.get('/bookings'),
-        api.get('/customers')
+        api.get('/customers'),
+        api.get('/vehicle-types')
       ]);
       setBookings(bookingsRes.data.data);
       setCustomers(customersRes.data.data);
+      setVehicleTypes(vehiclesRes.data.data);
     } catch (err) {
       toast.error('Failed to fetch bookings list.');
     } finally {
@@ -53,6 +57,17 @@ const Bookings = () => {
       toast.success('Ride booking deleted successfully');
     } catch (err) {
       toast.error('Failed to delete booking');
+    }
+  };
+
+  const handleCancel = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      const { data } = await api.put(`/bookings/${id}`, { status: 'Cancelled' });
+      setBookings(bookings.map(b => b._id === id ? data.data : b));
+      toast.success('Booking cancelled successfully');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to cancel booking');
     }
   };
 
@@ -86,9 +101,13 @@ const Bookings = () => {
         payload.customerEmail = formData.customerEmail;
       }
 
+      if (formData.carType) {
+        payload.carType = formData.carType;
+      }
+
       const response = await api.post('/bookings/publish', payload);
-      toast.success('Ride published successfully and set to Pending!');
-      
+      toast.success(formData.carType ? 'Ride published for specific car type!' : 'Ride published successfully and set to Pending!');
+
       setIsModalOpen(false);
       // Reset form
       setFormData({
@@ -100,7 +119,8 @@ const Bookings = () => {
         dropLocation: '',
         pickupDateTime: '',
         dropDateTime: '',
-        fare: 0
+        fare: '',
+        carType: ''
       });
       fetchData(); // Refresh list to get verified populated info
     } catch (err) {
@@ -109,7 +129,7 @@ const Bookings = () => {
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
       case 'Completed': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
       case 'Ongoing': return 'bg-purple-100 text-purple-800 border border-purple-200';
       case 'Arrived': return 'bg-indigo-100 text-indigo-800 border border-indigo-200';
@@ -129,7 +149,7 @@ const Bookings = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
-      
+
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -138,9 +158,9 @@ const Bookings = () => {
               <h3 className="text-xl font-bold text-gray-900">Publish New Ride Offer</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
             </div>
-            
+
             <form onSubmit={handleAddSubmit} className="p-6 space-y-5">
-              
+
               {/* Customer Selector / Creator Toggle */}
               <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <div className="flex items-center justify-between">
@@ -149,18 +169,16 @@ const Bookings = () => {
                     <button
                       type="button"
                       onClick={() => setCustomerMode('select')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        customerMode === 'select' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                      }`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${customerMode === 'select' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                        }`}
                     >
                       Select Existing
                     </button>
                     <button
                       type="button"
                       onClick={() => setCustomerMode('create')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-                        customerMode === 'create' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
-                      }`}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${customerMode === 'create' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                        }`}
                     >
                       <UserPlus size={12} /> Create New
                     </button>
@@ -169,10 +187,10 @@ const Bookings = () => {
 
                 {customerMode === 'select' ? (
                   <div>
-                    <select 
-                      required 
-                      value={formData.customer} 
-                      onChange={e => setFormData({...formData, customer: e.target.value})} 
+                    <select
+                      required
+                      value={formData.customer}
+                      onChange={e => setFormData({ ...formData, customer: e.target.value })}
                       className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-gray-900 mt-2"
                     >
                       <option value="">Select a customer...</option>
@@ -187,7 +205,7 @@ const Bookings = () => {
                       type="text"
                       placeholder="Name *"
                       value={formData.customerName}
-                      onChange={e => setFormData({...formData, customerName: e.target.value})}
+                      onChange={e => setFormData({ ...formData, customerName: e.target.value })}
                       className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-indigo-600"
                       required
                     />
@@ -195,7 +213,7 @@ const Bookings = () => {
                       type="tel"
                       placeholder="Phone *"
                       value={formData.customerPhone}
-                      onChange={e => setFormData({...formData, customerPhone: e.target.value})}
+                      onChange={e => setFormData({ ...formData, customerPhone: e.target.value })}
                       className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-indigo-600"
                       required
                     />
@@ -203,22 +221,39 @@ const Bookings = () => {
                       type="email"
                       placeholder="Email (Optional)"
                       value={formData.customerEmail}
-                      onChange={e => setFormData({...formData, customerEmail: e.target.value})}
+                      onChange={e => setFormData({ ...formData, customerEmail: e.target.value })}
                       className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-indigo-600 sm:col-span-2"
                     />
                   </div>
                 )}
               </div>
 
+              {/* Vehicle Type */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-bold text-gray-700 uppercase">Vehicle Type (Optional)</label>
+                <select
+                  value={formData.carType}
+                  onChange={e => setFormData({ ...formData, carType: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold text-gray-900"
+                >
+                  <option value="">Any vehicle type</option>
+                  {vehicleTypes.map(vt => (
+                    <option key={vt._id} value={vt.name}>
+                      {vt.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Locations */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-bold text-gray-700 uppercase">Pickup Location *</label>
-                  <input required type="text" value={formData.pickupLocation} onChange={e => setFormData({...formData, pickupLocation: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="Airport T2" />
+                  <input required type="text" value={formData.pickupLocation} onChange={e => setFormData({ ...formData, pickupLocation: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="Airport T2" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-bold text-gray-700 uppercase">Drop Location *</label>
-                  <input required type="text" value={formData.dropLocation} onChange={e => setFormData({...formData, dropLocation: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="Hotel Hyatt" />
+                  <input required type="text" value={formData.dropLocation} onChange={e => setFormData({ ...formData, dropLocation: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="Hotel Hyatt" />
                 </div>
               </div>
 
@@ -226,18 +261,18 @@ const Bookings = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-bold text-gray-700 uppercase">Pickup Date & Time *</label>
-                  <input required type="datetime-local" value={formData.pickupDateTime} onChange={e => setFormData({...formData, pickupDateTime: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold cursor-pointer" />
+                  <input required type="datetime-local" value={formData.pickupDateTime} onChange={e => setFormData({ ...formData, pickupDateTime: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold cursor-pointer" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-bold text-gray-700 uppercase">Drop Date & Time *</label>
-                  <input required type="datetime-local" value={formData.dropDateTime} onChange={e => setFormData({...formData, dropDateTime: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold cursor-pointer" />
+                  <input required type="datetime-local" value={formData.dropDateTime} onChange={e => setFormData({ ...formData, dropDateTime: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold cursor-pointer" />
                 </div>
               </div>
 
               {/* Fare */}
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-bold text-gray-700 uppercase">Total Ride Fare Amount (₹) *</label>
-                <input required type="number" value={formData.fare} onChange={e => setFormData({...formData, fare: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="2500" />
+                <input required type="number" value={formData.fare} onChange={e => setFormData({ ...formData, fare: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="2500" />
               </div>
 
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
@@ -262,8 +297,8 @@ const Bookings = () => {
           />
         </div>
         <div className="flex gap-2">
-          <button 
-            onClick={fetchData} 
+          <button
+            onClick={fetchData}
             className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl border border-gray-200 transition-colors"
           >
             <RefreshCw size={18} />
@@ -284,7 +319,7 @@ const Bookings = () => {
         ) : (
           filteredBookings.map((booking) => (
             <div key={booking._id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/60 hover:shadow-md transition-shadow group relative flex flex-col lg:flex-row justify-between gap-6">
-              
+
               <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-10">
                 <button onClick={() => handleDelete(booking._id)} className="p-2 bg-white border border-gray-200 rounded-full shadow-sm text-red-600 hover:bg-red-50" title="Delete Booking"><Trash2 size={16} /></button>
               </div>
@@ -299,11 +334,17 @@ const Bookings = () => {
                   </div>
                   <p className="text-xs text-gray-400">Published: {new Date(booking.createdAt).toLocaleString()}</p>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-6 mb-4">
                   <div className="flex items-start gap-2">
                     <MapPin size={18} className="text-indigo-500 mt-0.5 shrink-0" />
                     <div>
+                      {booking.carType && (
+                        <div className="flex-1">
+                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Requested Vehicle</p>
+                          <p className="font-bold text-indigo-900 mb-2">{booking.carType}</p>
+                        </div>
+                      )}
                       <p className="text-xs text-gray-500 uppercase tracking-wide font-bold">Pickup Location</p>
                       <p className="text-sm font-semibold text-gray-900 mt-0.5">{booking.pickupLocation}</p>
                       <p className="text-[10px] text-gray-400 mt-0.5">{new Date(booking.pickupDateTime).toLocaleString()}</p>
@@ -328,7 +369,7 @@ const Bookings = () => {
                   {booking.customer && (
                     <p className="text-xs text-gray-500 mt-0.5">{booking.customer.phone} • {booking.customer.email}</p>
                   )}
-                  
+
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1 mt-4">Assigned Chauffeur</p>
                   <p className="text-sm font-bold text-gray-900">
                     {booking.driver ? booking.driver.name : <span className="text-gray-400 font-normal">Waiting for driver accept...</span>}
@@ -337,12 +378,22 @@ const Bookings = () => {
                     <p className="text-xs text-gray-500 mt-0.5">{booking.driver.phone} • UPI ID: {booking.driver.upiId || 'N/A'}</p>
                   )}
                 </div>
-                
+
                 <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                   <span className="text-xl font-black text-emerald-600">₹{booking.fare}</span>
-                  <div className="flex items-center gap-1.5 text-xs font-semibold">
-                    <CreditCard size={14} className={booking.paymentStatus === 'Completed' ? 'text-emerald-500' : 'text-amber-500'} />
-                    <span className={booking.paymentStatus === 'Completed' ? 'text-emerald-700' : 'text-amber-700'}>{booking.paymentStatus}</span>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold">
+                      <CreditCard size={14} className={booking.paymentStatus === 'Completed' ? 'text-emerald-500' : 'text-amber-500'} />
+                      <span className={booking.paymentStatus === 'Completed' ? 'text-emerald-700' : 'text-amber-700'}>{booking.paymentStatus}</span>
+                    </div>
+                    {(booking.status === 'Pending' || booking.status === 'Accepted' || booking.status === 'Arrived') && (
+                      <button
+                        onClick={() => handleCancel(booking._id)}
+                        className="mt-1 px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700 text-[10px] font-black uppercase tracking-wider rounded-lg transition-colors border border-rose-100 shadow-sm"
+                      >
+                        Cancel Ride
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
