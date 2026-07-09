@@ -8,7 +8,8 @@ import {
   CalendarCheck, 
   CreditCard, 
   Settings, 
-  LogOut 
+  LogOut,
+  CheckCircle
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, text, to, active }) => (
@@ -43,9 +44,11 @@ const Layout = () => {
           <nav className="px-4 space-y-1">
             <SidebarItem icon={LayoutDashboard} text="Dashboard" to="/dashboard" active={location.pathname === '/dashboard'} />
             <SidebarItem icon={Users} text="Customers" to="/customers" active={location.pathname === '/customers'} />
-            <SidebarItem icon={Navigation} text="Drivers" to="/drivers" active={location.pathname === '/drivers'} />
-            <SidebarItem icon={Car} text="Cars" to="/cars" active={location.pathname === '/cars'} />
+            <SidebarItem icon={CheckCircle} text="Verification" to="/verification" active={location.pathname === '/verification' || location.pathname.startsWith('/verification/')} />
+            <SidebarItem icon={Navigation} text="Drivers" to="/drivers" active={location.pathname === '/drivers' || location.pathname.startsWith('/drivers/')} />
             <SidebarItem icon={CalendarCheck} text="Bookings" to="/bookings" active={location.pathname === '/bookings'} />
+            <SidebarItem icon={CreditCard} text="Payments History" to="/payments" active={location.pathname === '/payments'} />
+            <SidebarItem icon={Settings} text="Settings" to="/settings" active={location.pathname === '/settings'} />
           </nav>
         </div>
         <div className="p-4 border-t border-gray-100">

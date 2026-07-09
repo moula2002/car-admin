@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus, Edit2, Trash2, FileText, CheckCircle, XCircle, X, Eye, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 
@@ -11,7 +12,7 @@ const Drivers = () => {
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '', dob: '', licenseNumber: '', aadhaar: '', panCard: '' });
-  const [viewDriver, setViewDriver] = useState(null);
+  const navigate = useNavigate();
 
   const fetchDrivers = async () => {
     setLoading(true);
@@ -64,8 +65,9 @@ const Drivers = () => {
   };
 
   const filteredDrivers = drivers.filter(d =>
-    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    d.status !== 'pending' &&
+    (d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (d.licenseNumber && d.licenseNumber.toLowerCase().includes(searchTerm.toLowerCase())))
   );
 
   return (
@@ -123,79 +125,7 @@ const Drivers = () => {
         </div>
       )}
 
-      {/* View Details Modal */}
-      {viewDriver && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
-              <h3 className="text-xl font-bold text-gray-900">Driver Verification Details</h3>
-              <button onClick={() => setViewDriver(null)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="flex items-center gap-4">
-                {viewDriver.photo ? (
-                  <img src={viewDriver.photo} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-indigo-100" />
-                ) : (
-                  <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-300 font-bold text-2xl uppercase">{viewDriver.name.charAt(0)}</div>
-                )}
-                <div>
-                  <h4 className="text-xl font-bold text-gray-900">{viewDriver.name}</h4>
-                  <p className="text-gray-500 text-sm">{viewDriver.email} | {viewDriver.phone}</p>
-                  <p className="text-gray-500 text-sm">DOB: {viewDriver.dob ? new Date(viewDriver.dob).toLocaleDateString() : 'N/A'}</p>
-                </div>
-                <div className="ml-auto">
-                  {viewDriver.status === 'pending' && (
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">Pending Review</span>
-                  )}
-                  {viewDriver.status === 'approved' && (
-                    <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-semibold">Approved</span>
-                  )}
-                  {viewDriver.status === 'rejected' && (
-                    <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Rejected</span>
-                  )}
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h5 className="font-semibold text-gray-900 mb-2 border-b pb-1">License ({viewDriver.licenseNumber})</h5>
-                  {viewDriver.licenseImage ? (
-                    <img src={viewDriver.licenseImage} alt="License" className="w-full h-32 object-cover rounded-lg border border-gray-200" />
-                  ) : <div className="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center text-sm text-gray-400 border border-gray-200 border-dashed">No Image</div>}
-                </div>
-                <div>
-                  <h5 className="font-semibold text-gray-900 mb-2 border-b pb-1">Aadhaar ({viewDriver.aadhaar || 'N/A'})</h5>
-                  {viewDriver.aadhaarImage ? (
-                    <img src={viewDriver.aadhaarImage} alt="Aadhaar" className="w-full h-32 object-cover rounded-lg border border-gray-200" />
-                  ) : <div className="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center text-sm text-gray-400 border border-gray-200 border-dashed">No Image</div>}
-                </div>
-                <div>
-                  <h5 className="font-semibold text-gray-900 mb-2 border-b pb-1">PAN Card ({viewDriver.panCard || 'N/A'})</h5>
-                  {viewDriver.panImage ? (
-                    <img src={viewDriver.panImage} alt="PAN Card" className="w-full h-32 object-cover rounded-lg border border-gray-200" />
-                  ) : <div className="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center text-sm text-gray-400 border border-gray-200 border-dashed">No Image</div>}
-                </div>
-                <div>
-                  <h5 className="font-semibold text-gray-900 mb-2 border-b pb-1">Vehicle RC ({viewDriver.vehicleDetails?.number || 'N/A'})</h5>
-                  <p className="text-xs text-gray-500 mb-1">Type: {viewDriver.vehicleDetails?.type || 'N/A'}</p>
-                  {viewDriver.vehicleDetails?.rcImage ? (
-                    <img src={viewDriver.vehicleDetails.rcImage} alt="RC" className="w-full h-24 object-cover rounded-lg border border-gray-200" />
-                  ) : <div className="w-full h-24 bg-gray-50 rounded-lg flex items-center justify-center text-sm text-gray-400 border border-gray-200 border-dashed">No Image</div>}
-                </div>
-              </div>
-
-              {viewDriver.status === 'pending' && (
-                <div className="flex gap-4 pt-4 border-t border-gray-100">
-                  <button onClick={() => { handleStatusChange(viewDriver._id, 'approved'); setViewDriver(null); }} className="flex-1 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-colors">Approve Driver</button>
-                  <button onClick={() => { handleStatusChange(viewDriver._id, 'rejected'); setViewDriver(null); }} className="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">Reject Application</button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="relative w-full sm:w-96">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -298,7 +228,7 @@ const Drivers = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-3">
-                        <button onClick={() => setViewDriver(driver)} className="text-blue-600 hover:text-blue-900" title="View Details"><Eye size={18} /></button>
+                        <button onClick={() => navigate(`/drivers/${driver._id}`)} className="text-blue-600 hover:text-blue-900" title="View Details & History"><Eye size={18} /></button>
                         <button className="text-indigo-600 hover:text-indigo-900" title="Edit"><Edit2 size={18} /></button>
                         <button onClick={() => handleDelete(driver._id)} className="text-red-600 hover:text-red-900" title="Delete"><Trash2 size={18} /></button>
                       </div>

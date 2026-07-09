@@ -3,9 +3,12 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Customers from './pages/Customers';
+import DriverVerification from './pages/DriverVerification';
 import Drivers from './pages/Drivers';
-import Cars from './pages/Cars';
+import DriverDetails from './pages/DriverDetails';
 import Bookings from './pages/Bookings';
+import Payments from './pages/Payments';
+import Settings from './pages/Settings';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -32,9 +35,12 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="customers" element={<Customers />} />
+          <Route path="verification" element={<DriverVerification />} />
           <Route path="drivers" element={<Drivers />} />
-          <Route path="cars" element={<Cars />} />
+          <Route path="drivers/:id" element={<DriverDetails />} />
           <Route path="bookings" element={<Bookings />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
