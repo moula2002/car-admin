@@ -29,10 +29,15 @@ const Layout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
-  const handleLogout = () => {
+  const confirmLogout = () => {
     localStorage.removeItem('token');
     navigate('/login');
+  };
+
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
   };
 
   const handleSidebarClick = () => {
@@ -99,7 +104,7 @@ const Layout = () => {
         </div>
         <div className="p-4 border-t border-gray-100">
           <button
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             className="flex items-center gap-3 px-4 py-3 w-full text-left text-red-500 hover:bg-red-50 rounded-xl transition-all"
           >
             <LogOut size={20} />
@@ -124,6 +129,13 @@ const Layout = () => {
             </h2>
           </div>
           <div className="flex items-center gap-4">
+            <button 
+              onClick={handleLogoutClick}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            >
+              <LogOut size={18} />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
               A
             </div>
@@ -135,6 +147,37 @@ const Layout = () => {
           <Outlet />
         </div>
       </main>
+
+      {/* Logout Confirmation Modal */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3 mb-4 text-gray-900">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                <LogOut size={20} />
+              </div>
+              <h3 className="text-xl font-bold">Confirm Logout</h3>
+            </div>
+            <p className="text-gray-600 mb-6 text-sm leading-relaxed">
+              Are you sure you want to log out of the Admin Panel? You will need to sign in again to access the dashboard.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button 
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="px-4 py-2 font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmLogout}
+                className="px-4 py-2 font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-sm transition-colors"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
