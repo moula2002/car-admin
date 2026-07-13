@@ -3,8 +3,55 @@ import { Search, Plus, MapPin, Calendar, Clock, CreditCard, X, Trash2, UserPlus,
 import api from '../utils/api';
 import { toast } from 'react-toastify';
 
+const TimerBadge = ({ booking }) => {
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [isExpired, setIsExpired] = useState(false);
+
+  useEffect(() => {
+    if (!booking.timer || !booking.startTime) {
+      setTimeLeft(null);
+      setIsExpired(false);
+      return;
+    }
+    const start = new Date(booking.startTime);
+    const expiryTime = start.getTime() + booking.timer * 60000;
+    
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const distance = expiryTime - now;
+      if (distance <= 0) {
+        setTimeLeft(0);
+        setIsExpired(true);
+      } else {
+        setTimeLeft(distance);
+        setIsExpired(false);
+      }
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [booking]);
+
+  const formatTime = (ms) => {
+    if (ms <= 0) return 'Expired';
+    const mins = Math.floor(ms / (1000 * 60));
+    const secs = Math.floor((ms % (1000 * 60)) / 1000);
+    return `${mins}m ${secs}s`;
+  };
+
+  if (!booking.timer || booking.status === 'Completed' || booking.status === 'Cancelled' || isExpired) return null;
+
+  return (
+    <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full border flex items-center gap-1 bg-blue-50 text-blue-600 border-blue-200">
+      <Clock size={12} /> {timeLeft !== null ? formatTime(timeLeft) : `${booking.timer} mins`}
+    </span>
+  );
+};
+
 const Bookings = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('All');
   const [bookings, setBookings] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [vehicleTypes, setVehicleTypes] = useState([]);
@@ -24,7 +71,8 @@ const Bookings = () => {
     pickupDateTime: '',
     dropDateTime: '',
     fare: '',
-    carType: ''
+    carType: '',
+    timer: ''
   });
 
   const fetchData = async () => {
@@ -105,6 +153,10 @@ const Bookings = () => {
         payload.carType = formData.carType;
       }
 
+      if (formData.timer) {
+        payload.timer = Number(formData.timer);
+      }
+
       const response = await api.post('/bookings/publish', payload);
       toast.success(formData.carType ? 'Ride published for specific car type!' : 'Ride published successfully and set to Pending!');
 
@@ -120,7 +172,8 @@ const Bookings = () => {
         pickupDateTime: '',
         dropDateTime: '',
         fare: '',
-        carType: ''
+        carType: '',
+        timer: ''
       });
       fetchData(); // Refresh list to get verified populated info
     } catch (err) {
@@ -140,12 +193,16 @@ const Bookings = () => {
     }
   };
 
-  const filteredBookings = bookings.filter(b =>
-    b._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.pickupLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    b.dropLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (b.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredBookings = bookings.filter(b => {
+    const matchesSearch = b._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.pickupLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.dropLocation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (b.customer?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === 'All' || b.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
@@ -269,10 +326,16 @@ const Bookings = () => {
                 </div>
               </div>
 
-              {/* Fare */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-gray-700 uppercase">Total Ride Fare Amount (₹) *</label>
-                <input required type="number" value={formData.fare} onChange={e => setFormData({ ...formData, fare: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="2500" />
+              {/* Fare & Timer */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-gray-700 uppercase">Total Ride Fare Amount (₹) *</label>
+                  <input required type="number" value={formData.fare} onChange={e => setFormData({ ...formData, fare: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="2500" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold text-gray-700 uppercase">Timer (Minutes)</label>
+                  <input type="number" value={formData.timer} onChange={e => setFormData({ ...formData, timer: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 text-sm font-semibold" placeholder="e.g. 15" />
+                </div>
               </div>
 
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
@@ -285,18 +348,34 @@ const Bookings = () => {
       )}
 
       {/* Header Toolbar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="relative w-full sm:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
-            placeholder="Search rides by ID, customer, location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-1">
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+              placeholder="Search rides by ID, customer, location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="w-full sm:w-44 px-3 py-2.5 border border-gray-200 rounded-xl bg-white text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-medium"
+          >
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Admin Accepted">Admin Accepted</option>
+            <option value="Accepted">Accepted</option>
+            <option value="Arrived">Arrived</option>
+            <option value="Ongoing">Ongoing</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto justify-end shrink-0">
           <button
             onClick={fetchData}
             className="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl border border-gray-200 transition-colors"
@@ -331,6 +410,7 @@ const Bookings = () => {
                     <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(booking.status)}`}>
                       {booking.status}
                     </span>
+                    <TimerBadge booking={booking} />
                   </div>
                   <p className="text-xs text-gray-400">Published: {new Date(booking.createdAt).toLocaleString()}</p>
                 </div>
@@ -370,7 +450,7 @@ const Bookings = () => {
                     <p className="text-xs text-gray-500 mt-0.5">{booking.customer.phone} • {booking.customer.email}</p>
                   )}
 
-                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1 mt-4">Assigned Chauffeur</p>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1 mt-4">Assigned Driver</p>
                   <p className="text-sm font-bold text-gray-900">
                     {booking.driver ? booking.driver.name : <span className="text-gray-400 font-normal">Waiting for driver accept...</span>}
                   </p>

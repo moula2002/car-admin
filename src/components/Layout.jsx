@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import logoImg from '../assets/logo.png';
 import {
   LayoutDashboard,
   Users,
@@ -12,7 +13,8 @@ import {
   LogOut,
   CheckCircle,
   Menu,
-  X
+  X,
+  Activity
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, text, to, active }) => (
@@ -56,10 +58,7 @@ const Layout = () => {
         <div>
           <div className="p-6 flex items-center justify-between lg:justify-start gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-                <Car size={20} className="text-white" />
-              </div>
-              <h1 className="text-xl font-bold text-gray-800">CabAdmin</h1>
+              <img src={logoImg} alt="Route Cabs Logo" className="h-[48px] object-contain ml-2 mt-2" />
             </div>
             <button 
               onClick={() => setIsMobileSidebarOpen(false)}
@@ -86,6 +85,9 @@ const Layout = () => {
             </div>
             <div onClick={handleSidebarClick}>
               <SidebarItem icon={CalendarCheck} text="Bookings" to="/bookings" active={location.pathname === '/bookings'} />
+            </div>
+            <div onClick={handleSidebarClick}>
+              <SidebarItem icon={Activity} text="Ongoing Rides" to="/ongoing-rides" active={location.pathname === '/ongoing-rides'} />
             </div>
             <div onClick={handleSidebarClick}>
               <SidebarItem icon={CreditCard} text="Payments History" to="/payments" active={location.pathname === '/payments'} />

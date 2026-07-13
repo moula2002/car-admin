@@ -10,6 +10,7 @@ import Bookings from './pages/Bookings';
 import Payments from './pages/Payments';
 import Settings from './pages/Settings';
 import Vehicles from './pages/Vehicles';
+import OngoingRide from './pages/OngoingRide';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="drivers/:id" element={<DriverDetails />} />
           <Route path="vehicles" element={<Vehicles />} />
           <Route path="bookings" element={<Bookings />} />
+          <Route path="ongoing-rides" element={<OngoingRide />} />
           <Route path="payments" element={<Payments />} />
           <Route path="settings" element={<Settings />} />
         </Route>
