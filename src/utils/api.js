@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://car-taxi-server.onrender.com/api/v1',
+  baseURL: 'https://car-taxi-server-k7sa.onrender.com/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
