@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Edit2, Trash2, FileText, CheckCircle, XCircle, X, Eye, AlertCircle } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, FileText, CheckCircle, XCircle, X, Eye, AlertCircle, Car, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { toast } from 'react-toastify';
@@ -71,54 +71,58 @@ const Drivers = () => {
   );
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 relative">
 
       {/* Add Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-gray-100">
-              <h3 className="text-xl font-bold text-gray-900">Add New Driver</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-slate-100">
+            <div className="flex justify-between items-center p-6 sm:p-8 border-b border-slate-100 bg-slate-50/50">
+              <div>
+                 <h3 className="text-xl font-bold text-slate-900">Add New Driver</h3>
+                 <p className="text-xs text-slate-500 font-medium mt-1">Register a new driver profile to the platform</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors shadow-sm border border-slate-100"><X size={18} /></button>
             </div>
-            <form onSubmit={handleAddSubmit} className="p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleAddSubmit} className="p-6 sm:p-8 space-y-6">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Michael Scott" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Full Name *</label>
+                  <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium" placeholder="Michael Scott" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                  <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="michael@example.com" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Email Address *</label>
+                  <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium" placeholder="michael@example.com" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <input required type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="••••••••" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Password *</label>
+                  <input required type="password" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium" placeholder="••••••••" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input required type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="+91 9876543210" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Phone Number *</label>
+                  <input required type="text" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium" placeholder="+91 9876543210" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                  <input type="date" value={formData.dob} onChange={e => setFormData({ ...formData, dob: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Date of Birth</label>
+                  <input type="date" value={formData.dob} onChange={e => setFormData({ ...formData, dob: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium text-slate-700" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">License Number</label>
-                  <input required type="text" value={formData.licenseNumber} onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="DL-1420110012345" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">License Number *</label>
+                  <input required type="text" value={formData.licenseNumber} onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium uppercase placeholder:normal-case" placeholder="DL-1420110012345" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Aadhaar Number</label>
-                  <input type="text" value={formData.aadhaar} onChange={e => setFormData({ ...formData, aadhaar: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="1234 5678 9012" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">Aadhaar Number</label>
+                  <input type="text" value={formData.aadhaar} onChange={e => setFormData({ ...formData, aadhaar: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium" placeholder="1234 5678 9012" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">PAN Card Number</label>
-                  <input type="text" value={formData.panCard} onChange={e => setFormData({ ...formData, panCard: e.target.value })} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="ABCDE1234F" />
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 pl-1">PAN Card Number</label>
+                  <input type="text" value={formData.panCard} onChange={e => setFormData({ ...formData, panCard: e.target.value })} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm font-medium uppercase placeholder:normal-case" placeholder="ABCDE1234F" />
                 </div>
               </div>
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-50 rounded-xl transition-colors">Cancel</button>
-                <button type="submit" className="px-5 py-2.5 bg-indigo-600 text-white font-medium hover:bg-indigo-700 rounded-xl transition-colors shadow-sm">Save Driver</button>
+              <div className="pt-6 mt-4 flex justify-end gap-3 border-t border-slate-100">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 text-slate-600 font-bold bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Cancel</button>
+                <button type="submit" className="px-6 py-3 bg-indigo-600 text-white font-bold hover:bg-indigo-700 rounded-xl transition-all shadow-md shadow-indigo-500/20 hover:-translate-y-0.5">Save Driver Details</button>
               </div>
             </form>
           </div>
@@ -126,111 +130,125 @@ const Drivers = () => {
       )}
 
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="relative w-full sm:w-96">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/60 backdrop-blur-md p-4 rounded-3xl border border-white shadow-sm">
+        <div className="relative w-full sm:w-96 group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
-            placeholder="Search drivers..."
+            className="block w-full pl-11 pr-4 py-3 border border-slate-200 rounded-2xl leading-5 bg-white/80 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 sm:text-sm transition-all font-medium shadow-sm"
+            placeholder="Search drivers by name or license..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm font-medium">
+        <button onClick={() => setIsModalOpen(true)} className="flex items-center justify-center w-full sm:w-auto gap-2 bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white px-6 py-3 rounded-2xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all hover:-translate-y-0.5 font-bold shadow-md">
           <Plus size={20} />
           Add Driver
         </button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/60 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-slate-200/60">
+            <thead className="bg-slate-50/80 backdrop-blur-sm">
               <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver Info</th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">License</th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Assigned Car</th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Joined Date</th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
+                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Driver Info</th>
+                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">License</th>
+                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Assigned Car</th>
+                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Joined Date</th>
+                <th scope="col" className="px-6 py-5 text-left text-xs font-black text-slate-500 uppercase tracking-widest">Status</th>
+                <th scope="col" className="relative px-6 py-5"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white/40 divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan="6" className="text-center py-10 text-gray-500 font-medium">Loading drivers...</td></tr>
+                <tr><td colSpan="6" className="text-center py-16 text-slate-500 font-semibold animate-pulse">Loading active drivers...</td></tr>
               ) : filteredDrivers.length === 0 ? (
-                <tr><td colSpan="6" className="text-center py-10 text-gray-500 font-medium">No drivers found</td></tr>
+                <tr><td colSpan="6" className="text-center py-16 text-slate-500 font-medium">No drivers found</td></tr>
               ) : (
                 filteredDrivers.map((driver) => (
-                  <tr key={driver._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <tr key={driver._id} className="hover:bg-white/80 transition-colors group">
+                    <td className="px-6 py-4 ">
                       <div className="flex items-center">
                         {driver.photo ? (
-                          <img src={driver.photo} alt="" className="h-10 w-10 rounded-full object-cover" />
+                          <img src={driver.photo} alt="" className="h-12 w-12 rounded-2xl object-cover border border-slate-200 shadow-sm group-hover:scale-105 transition-transform" />
                         ) : (
-                          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold uppercase">
+                          <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-gradient-to-tr from-amber-100 to-orange-50 border border-amber-100/50 flex items-center justify-center text-amber-600 font-black text-lg uppercase shadow-sm group-hover:scale-105 transition-transform">
                             {driver.name ? driver.name.charAt(0) : 'D'}
                           </div>
                         )}
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{driver.name || 'Unknown'}</div>
-                          <div className="text-sm text-gray-500">{driver.phone || 'N/A'}</div>
+                          <div className="text-sm font-bold text-slate-900">{driver.name || 'Unknown'}</div>
+                          <div className="text-[11px] font-semibold text-slate-500 mt-0.5">{driver.phone || 'N/A'}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <FileText size={16} className="text-gray-400" />
-                        <span className="text-sm text-gray-900 font-mono">{driver.licenseNumber}</span>
+                    <td className="px-6 py-4 ">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-1.5 bg-slate-100 rounded-lg">
+                           <FileText size={14} className="text-slate-500" />
+                        </div>
+                        <span className="text-sm text-slate-900 font-bold uppercase tracking-wide">{driver.licenseNumber}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4  text-sm text-slate-500">
                       {driver.currentCar ? (
-                        <div className="flex flex-col">
-                          <span>{driver.currentCar.make} {driver.currentCar.model}</span>
-                          <span className="text-xs text-gray-400">{driver.currentCar.registrationNumber}</span>
+                        <div className="flex items-center gap-2">
+                          <Car size={16} className="text-indigo-500"/>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-900">{driver.currentCar.make} {driver.currentCar.model}</span>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mt-0.5">{driver.currentCar.registrationNumber}</span>
+                          </div>
                         </div>
                       ) : driver.vehicleDetails?.number ? (
-                        <div className="flex flex-col">
-                          <span>{driver.vehicleDetails.type}</span>
-                          <span className="text-xs text-gray-400">{driver.vehicleDetails.number}</span>
+                        <div className="flex items-center gap-2">
+                           <Car size={16} className="text-slate-400"/>
+                           <div className="flex flex-col">
+                             <span className="font-bold text-slate-700">{driver.vehicleDetails.type}</span>
+                             <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mt-0.5">{driver.vehicleDetails.number}</span>
+                           </div>
                         </div>
-                      ) : 'Unassigned'}
+                      ) : (
+                         <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-slate-100 text-slate-500 rounded-lg border border-slate-200/60">
+                            Unassigned
+                         </span>
+                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(driver.createdAt).toLocaleDateString()}
+                    <td className="px-6 py-4 ">
+                       <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
+                          <CalendarDays size={14} className="text-slate-400"/>
+                          {new Date(driver.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 ">
                       {driver.status === 'approved' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium bg-emerald-50 text-emerald-700">
-                          <CheckCircle size={16} /> Approved
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-200/60 shadow-sm shadow-emerald-100">
+                          <CheckCircle size={14} /> Approved
                         </span>
                       )}
                       {driver.status === 'rejected' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium bg-red-50 text-red-700">
-                          <XCircle size={16} /> Rejected
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200/60 shadow-sm shadow-rose-100">
+                          <XCircle size={14} /> Rejected
                         </span>
                       )}
                       {driver.status === 'pending' && (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium bg-yellow-50 text-yellow-700">
-                          <AlertCircle size={16} /> Pending
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider bg-amber-100 text-amber-700 border border-amber-200/60 shadow-sm shadow-amber-100">
+                          <AlertCircle size={14} /> Pending
                         </span>
                       )}
                       {(driver.status === 'Active' || driver.status === 'Inactive') && (
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium ${driver.status === 'Active' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-700'}`}>
-                          {driver.status === 'Active' ? <CheckCircle size={16} /> : <XCircle size={16} />} {driver.status}
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider shadow-sm ${driver.status === 'Active' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200/60 shadow-emerald-100' : 'bg-slate-100 text-slate-700 border border-slate-200/60'}`}>
+                          {driver.status === 'Active' ? <CheckCircle size={14} /> : <XCircle size={14} />} {driver.status}
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-3">
-                        <button onClick={() => navigate(`/drivers/${driver._id}`)} className="text-blue-600 hover:text-blue-900" title="View Details & History"><Eye size={18} /></button>
-                        <button className="text-indigo-600 hover:text-indigo-900" title="Edit"><Edit2 size={18} /></button>
-                        <button onClick={() => handleDelete(driver._id)} className="text-red-600 hover:text-red-900" title="Delete"><Trash2 size={18} /></button>
+                    <td className="px-6 py-4  text-right text-sm font-medium">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => navigate(`/drivers/${driver._id}`)} className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-blue-500 hover:bg-blue-50 hover:border-blue-200 transition-colors" title="View Details"><Eye size={16} /></button>
+                        <button onClick={() => handleDelete(driver._id)} className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-colors" title="Delete"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>

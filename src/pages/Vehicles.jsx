@@ -13,7 +13,8 @@ const Vehicles = () => {
   const [editingId, setEditingId] = useState(null);
   
   const [formData, setFormData] = useState({
-    name: ''
+    name: '',
+    imageUrl: ''
   });
 
   const fetchData = async () => {
@@ -46,7 +47,8 @@ const Vehicles = () => {
   const openEditModal = (vt) => {
     setEditingId(vt._id);
     setFormData({
-      name: vt.name
+      name: vt.name || '',
+      imageUrl: vt.imageUrl || ''
     });
     setIsModalOpen(true);
   };
@@ -68,7 +70,7 @@ const Vehicles = () => {
       
       setIsModalOpen(false);
       setEditingId(null);
-      setFormData({ name: '' });
+      setFormData({ name: '', imageUrl: '' });
     } catch (err) {
       toast.error(err.response?.data?.error || 'Operation failed');
     }
@@ -94,7 +96,31 @@ const Vehicles = () => {
               
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Vehicle Type Name</label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm font-semibold" placeholder="e.g. Sedan, SUV, Luxury" />
+                <input required type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm font-semibold" placeholder="e.g. Sedan, SUV, Luxury" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Upload Image (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormData({...formData, imageUrl: reader.result});
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }} 
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 text-sm font-semibold" 
+                />
+                {formData.imageUrl && (
+                  <div className="mt-2 flex items-center gap-3">
+                    <img src={formData.imageUrl} alt="Preview" className="w-10 h-10 object-cover rounded-lg border border-gray-200 shadow-sm" />
+                    <span className="text-xs text-indigo-600 font-bold">Image ready</span>
+                  </div>
+                )}
               </div>
 
               <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
@@ -132,7 +158,7 @@ const Vehicles = () => {
           <button onClick={fetchData} className="p-2.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl transition-colors border border-gray-200">
             <RefreshCw size={18} />
           </button>
-          <button onClick={() => { setFormData({ name: '' }); setIsModalOpen(true); }} className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-sm font-bold text-sm hover:shadow hover:-translate-y-0.5">
+          <button onClick={() => { setFormData({ name: '', imageUrl: '' }); setIsModalOpen(true); }} className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-sm font-bold text-sm hover:shadow hover:-translate-y-0.5">
             <Plus size={18} />
             Add Type
           </button>
@@ -140,46 +166,36 @@ const Vehicles = () => {
       </div>
 
       {/* List */}
-      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {loading ? (
-          <div className="text-center py-16 text-gray-500 font-bold">Loading vehicle types...</div>
+          <div className="col-span-full text-center py-16 text-gray-500 font-bold bg-white rounded-3xl shadow-sm border border-gray-100">Loading vehicle types...</div>
         ) : filteredTypes.length === 0 ? (
-          <div className="text-center py-16 text-gray-500 font-bold bg-gray-50/50">No vehicle types found. Click 'Add Type' to create one.</div>
+          <div className="col-span-full text-center py-16 text-gray-500 font-bold bg-gray-50/50 rounded-3xl shadow-sm border border-gray-100">No vehicle types found. Click 'Add Type' to create one.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left whitespace-nowrap">
-              <thead className="bg-gray-50/80 text-gray-500 border-b border-gray-100">
-                <tr>
-                  <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px]">Type Name</th>
-                  <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredTypes.map(vt => (
-                  <tr key={vt._id} className="hover:bg-gray-50/50 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                          <Car size={18} />
-                        </div>
-                        <p className="font-bold text-gray-900 text-lg">{vt.name}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => openEditModal(vt)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Edit Vehicle Type">
-                          <Edit2 size={16} />
-                        </button>
-                        <button onClick={() => handleDelete(vt._id)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Delete Vehicle Type">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          filteredTypes.map(vt => (
+            <div key={vt._id} className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden flex flex-col items-center text-center">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-indigo-50 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="w-24 h-24 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 ring-4 ring-white shadow-sm group-hover:scale-110 transition-transform duration-300 relative z-10 overflow-hidden">
+                {(vt.imageUrl || vt.image || vt.icon) ? (
+                  <img src={vt.imageUrl || vt.image || vt.icon} alt={vt.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Car size={32} />
+                )}
+              </div>
+              
+              <h3 className="text-xl font-black text-gray-900 mb-6 relative z-10">{vt.name}</h3>
+              
+              <div className="flex items-center gap-2 mt-auto relative z-10 w-full justify-center border-t border-gray-50 pt-4">
+                <button onClick={() => openEditModal(vt)} className="p-2.5 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors font-bold shadow-sm" title="Edit Type">
+                  <Edit2 size={16} />
+                </button>
+                <button onClick={() => handleDelete(vt._id)} className="p-2.5 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-xl transition-colors font-bold shadow-sm" title="Delete Type">
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>
