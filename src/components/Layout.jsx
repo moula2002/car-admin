@@ -24,8 +24,8 @@ const SidebarItem = ({ icon: Icon, text, to, active }) => (
     {active && (
       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />
     )}
-  <Icon size={20} className={`relative z-10 transition-transform duration-300 ${active ? 'text-white scale-110' : 'text-slate-400 group-hover:scale-110 group-hover:text-indigo-500'}`} />
-  <span className="font-semibold relative z-10">{text}</span>
+    <Icon size={20} className={`relative z-10 transition-transform duration-300 ${active ? 'text-white scale-110' : 'text-slate-400 group-hover:scale-110 group-hover:text-indigo-500'}`} />
+    <span className="font-semibold relative z-10">{text}</span>
   </Link>
 );
 
@@ -52,17 +52,16 @@ const Layout = () => {
     <div className="flex h-screen overflow-hidden font-sans relative bg-slate-50">
       {/* Background overlay for mobile */}
       {isMobileSidebarOpen && (
-        <div 
-          onClick={() => setIsMobileSidebarOpen(false)} 
+        <div
+          onClick={() => setIsMobileSidebarOpen(false)}
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden transition-opacity"
         />
       )}
 
       {/* Sidebar */}
-      <aside 
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl border-r border-slate-200/50 flex flex-col justify-between h-full transform transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 lg:static lg:z-auto m-0 lg:m-4 lg:rounded-3xl lg:h-[calc(100vh-2rem)] ${
-          isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl border-r border-slate-200/50 flex flex-col justify-between h-full transform transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 lg:static lg:z-auto m-0 lg:m-4 lg:rounded-3xl lg:h-[calc(100vh-2rem)] ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex flex-col flex-1 min-h-0">
           <div className="p-6 pt-8 flex items-center justify-between lg:justify-start gap-2">
@@ -72,7 +71,7 @@ const Layout = () => {
               </div>
               <span className="font-bold text-xl text-slate-800 tracking-tight">Route Cabs</span>
             </div>
-            <button 
+            <button
               onClick={() => setIsMobileSidebarOpen(false)}
               className="lg:hidden p-2 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer transition-colors"
             >
@@ -96,11 +95,11 @@ const Layout = () => {
             <div onClick={handleSidebarClick}>
               <SidebarItem icon={Car} text="Vehicles" to="/vehicles" active={location.pathname === '/vehicles'} />
             </div>
-            
+
             <div className="pt-4 pb-2">
               <p className="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Operations</p>
             </div>
-            
+
             <div onClick={handleSidebarClick}>
               <SidebarItem icon={CalendarCheck} text="Bookings" to="/bookings" active={location.pathname === '/bookings'} />
             </div>
@@ -110,7 +109,7 @@ const Layout = () => {
             <div onClick={handleSidebarClick}>
               <SidebarItem icon={CreditCard} text="Transactions" to="/payments" active={location.pathname === '/payments'} />
             </div>
-            
+
             <div className="pt-4 pb-2">
               <p className="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">System</p>
             </div>
@@ -119,7 +118,7 @@ const Layout = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="p-4 mt-auto">
           <div className="bg-slate-100/50 rounded-2xl p-4 mb-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white flex items-center justify-center font-bold shadow-md">
@@ -127,7 +126,7 @@ const Layout = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-slate-900 truncate">Admin User</p>
-              <p className="text-xs text-slate-500 truncate">admin@routecabs.com</p>
+              <p className="text-xs text-slate-500 truncate">eshwarroutecabs@gmail.com</p>
             </div>
           </div>
           <button
@@ -158,20 +157,20 @@ const Layout = () => {
               <p className="text-sm text-slate-500 hidden sm:block">Manage your operations efficiently</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3 sm:gap-5">
             <button className="relative p-2.5 text-slate-500 hover:text-indigo-600 bg-white rounded-xl shadow-sm border border-slate-200 hover:border-indigo-200 transition-all group">
               <Bell size={20} className="group-hover:animate-swing" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
             </button>
             <div className="hidden sm:flex items-center gap-3 pl-5 border-l border-slate-200">
-               <div className="text-right">
-                  <p className="text-sm font-bold text-slate-900">Admin</p>
-                  <p className="text-xs text-slate-500">Superuser</p>
-               </div>
-               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-500/20 cursor-pointer hover:scale-105 transition-transform">
-                 A
-               </div>
+              <div className="text-right">
+                <p className="text-sm font-bold text-slate-900">Admin</p>
+                <p className="text-xs text-slate-500">Superuser</p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white flex items-center justify-center font-bold shadow-md shadow-indigo-500/20 cursor-pointer hover:scale-105 transition-transform">
+                A
+              </div>
             </div>
           </div>
         </header>
@@ -196,13 +195,13 @@ const Layout = () => {
               Are you sure you want to end your session? You will need to log in again to access the admin panel.
             </p>
             <div className="flex gap-3">
-              <button 
+              <button
                 onClick={() => setIsLogoutModalOpen(false)}
                 className="flex-1 px-4 py-3 font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={confirmLogout}
                 className="flex-1 px-4 py-3 font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-xl shadow-md shadow-rose-500/20 transition-all hover:-translate-y-0.5"
               >
