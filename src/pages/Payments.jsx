@@ -8,6 +8,7 @@ export default function Payments() {
   const [transactions, setTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [actioningId, setActioningId] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -130,6 +131,18 @@ export default function Payments() {
                       <p className="text-xs text-gray-800 font-bold mt-0.5">{tx.driver?.upiId || 'N/A'}</p>
                     </div>
                   </div>
+                  
+                  {tx.paymentProof && (
+                    <div className="pt-2">
+                      <p className="text-[10px] text-gray-400 font-bold uppercase mb-1">Payment Proof</p>
+                      <img 
+                        src={tx.paymentProof.startsWith('data:') ? tx.paymentProof : `data:image/jpeg;base64,${tx.paymentProof}`} 
+                        alt="Payment Proof" 
+                        onClick={() => setSelectedImage(tx.paymentProof.startsWith('data:') ? tx.paymentProof : `data:image/jpeg;base64,${tx.paymentProof}`)}
+                        className="h-16 w-16 md:h-20 md:w-20 rounded-xl border border-gray-200 object-cover cursor-pointer hover:opacity-80 transition-all shadow-sm" 
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-gray-100 pt-4 flex items-center justify-between">
@@ -231,6 +244,21 @@ export default function Payments() {
           )}
         </div>
       </div>
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80" onClick={() => setSelectedImage(null)}>
+          <div className="relative max-w-3xl max-h-[90vh] w-full flex justify-center" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <X size={32} />
+            </button>
+            <img src={selectedImage} alt="Payment Proof" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+          </div>
+        </div>
+      )}
 
     </div>
   );
