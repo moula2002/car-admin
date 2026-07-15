@@ -64,7 +64,7 @@ const Layout = () => {
           isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col flex-1 min-h-0">
           <div className="p-6 pt-8 flex items-center justify-between lg:justify-start gap-2">
             <div className="flex items-center gap-3">
               <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
